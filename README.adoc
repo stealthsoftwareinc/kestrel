@@ -1,0 +1,55 @@
+//
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+= Kestrel
+
+In the DARPA RACE Program, Stealth Software Technologies, Inc. (Stealth)
+developed a solution called CARMA (**C**overt **A**nonymous **R**eliable
+**M**essaging **A**pp).
+Kestrel is a realization of the CARMA solution.
+The Kestrel system enables users to run a collection of client and
+server nodes to facilitate anonymous communication. Kestrel provides a
+means for orchestrating nodes and instructs the nodes in the system how
+to behave.
+It informs which nodes should be connected under which communication
+channels, the roles they serve, when and how to pass messages, and how
+to perform the proper duties to meet the design goals of robustness and
+anonymity.
+
+== CARMA in the RACE program
+
+See link:RACE_CARMA_GUIDE.adoc[].
+
+== License
+
+Kestrel is licensed under the Apache 2.0 license.
+See the link:LICENSE[`LICENSE`] file for the full license.
+
+For other licensing opportunities, please reach out to us at
+mailto:contact@stealthsoftwareinc.com[].
+
+== Acknowledgments
+
+This material is based upon work supported by the United States Air
+Force and DARPA under Contract No. FA8750-19-C-0031.
+Any opinions, findings and conclusions or recommendations expressed in
+this material are those of the author(s) and do not necessarily reflect
+the views of the United States Air Force and DARPA.
+
+**Distribution Statement "A"** (Approved for Public Release,
+Distribution Unlimited)

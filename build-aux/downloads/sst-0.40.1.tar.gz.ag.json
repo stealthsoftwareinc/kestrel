@@ -1,0 +1,19 @@
+{
+
+  "handler": "sst_ajh_download",
+
+  "hashes": {
+    "md5": "63c5561b5dae601f5da62b09027968a7",
+    "sha1": "b8cf652a480f4ccf831c84454101d0d1c3751c6c",
+    "sha224": "37e816606e5f43e85ea5be81b880c7b758d8bd53629299a3b750fc12",
+    "sha256": "260f68f87bff25ec32b449c71b73e8291b4423fa2bd00a54d8e435d14bdfe99c",
+    "sha384": "06c789a80a8ca62593ac7a3481f782de3a78c46dd59d513c635e7b42d97bea1f96026acb97faf68f8b0853e00101b920",
+    "sha512": "1f70af8f511e277949c2801aac6142a0b76b6923e7369b5f1dea07f6cba7b9e15a047a51eba9091a3686d840e37b9a2697a0ce916563287173beede2560911b8"
+  },
+
+  "urls": [
+    "https://github.com/stealthsoftwareinc/sst/raw/master/sst-0.40.1.tar.gz",
+    "git-archive://git@gitlab.stealthsoftwareinc.com:stealth/sst-artifacts.git${nl}master:${nl}2024/2024-12-12-0.40.1/sst-0.40.1.tar.gz"
+  ]
+
+}

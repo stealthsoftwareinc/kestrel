@@ -1,0 +1,12 @@
+doc/manual/config.adoc
+doc/manual/docinfo-footer.html
+doc/manual/docinfo.html
+doc/manual/fonts
+doc/manual/jquery-ui-base.css
+doc/manual/jquery-ui.js
+doc/manual/jquery.js
+doc/manual/katex
+doc/manual/sst.adoc
+doc/manual/sst.css
+doc/manual/sst.js
+doc/manual/sst.yml

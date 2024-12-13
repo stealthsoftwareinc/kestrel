@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.23">
+<meta name="author" content="Stealth Software Technologies, Inc.">
+<title>CARMA</title>
+<link rel="stylesheet" href="./sst.css">
+<!--
+//
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+-->
+
+<!--
+//
+// Asciidoctor copies the content of this file into the <head> element.
+//
+-->
+
+<link rel="stylesheet" href="jquery-ui-base.css">
+<link rel="stylesheet" href="katex/katex.min.css">
+
+<!-- TODO: Eliminate jquery -->
+<script defer src="jquery.js"></script>
+<script defer src="jquery-ui.js"></script>
+<script defer src="katex/katex.min.js"></script>
+<script defer src="katex/contrib/auto-render.min.js"></script>
+<script defer src="sst.js"></script>
+
+<script>
+
+//
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+//----------------------------------------------------------------------
+// KaTeX setup
+//----------------------------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", function() {
+  if (window.renderMathInElement) {
+    window.renderMathInElement(document.body, {
+      delimiters: [
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+      ],
+      ignoredTags: [
+        "noscript",
+        "script",
+        "style",
+        "textarea",
+      ],
+      throwOnError: false,
+    });
+  }
+});
+
+//----------------------------------------------------------------------
+
+</script>
+
+<script type="text/x-mathjax-config">
+
+//
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+//----------------------------------------------------------------------
+// MathJax 2 setup
+//----------------------------------------------------------------------
+//
+// Asciidoctor configures MathJax 2 by calling the MathJax.Hub.Config
+// function. We want to adjust that configuration. To accomplish this,
+// we intercept Asciidoctor's call, adjust the arguments, and call the
+// original function with the adjusted arguments.
+//
+
+if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {
+  const f = window.MathJax.Hub.Config;
+  window.MathJax.Hub.Config = function(x) {
+    if (x.tex2jax && x.tex2jax.inlineMath) {
+      x.tex2jax.skipTags = [
+        "noscript",
+        "script",
+        "style",
+        "textarea",
+      ];
+      if (!x.MathMenu) {
+        x.MathMenu = {};
+      }
+      x.MathMenu.showLocale = false;
+    }
+    f.call(this, x);
+  };
+}
+
+//----------------------------------------------------------------------
+
+</script>
+
+<noscript>
+<style>
+
+/*
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+*/
+
+/*----------------------------------------------------------------------
+// Preventing a flash of unstyled content (FOUC)
+//----------------------------------------------------------------------
+//
+// See the comment in sst.css for how this works.
+*/
+
+body {
+  display: block;
+}
+
+/*--------------------------------------------------------------------*/
+
+</style>
+</noscript>
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>CARMA</h1>
+<div class="details">
+<span id="author" class="author">Stealth Software Technologies, Inc.</span><br>
+<span id="revnumber">version: 3.0.1,</span>
+<span id="revdate">2024-12-13</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#using_carma_with_race">1. Using CARMA with RACE</a>
+<ul class="sectlevel2">
+<li><a href="#custom_config_options_for_race">1.1. Custom config options</a>
+<ul class="sectlevel3">
+<li><a href="#cro_dynamic_only">1.1.1. The <code>--dynamic-only</code> option</a></li>
+<li><a href="#cro_allow_multicast">1.1.2. The <code>--allow-multicast</code> option</a></li>
+<li><a href="#cro_leader_relay_only">1.1.3. The <code>--leader-relay-only</code> option</a></li>
+<li><a href="#cro_mix_size">1.1.4. The <code>--mix-size</code> option</a></li>
+<li><a href="#cro_inter_server_direct_only">1.1.5. The <code>--inter-server-direct-only</code> option</a></li>
+<li><a href="#cro_send_retry_count">1.1.6. The <code>--send-retry-count</code> option</a></li>
+<li><a href="#cro_send_retry_window">1.1.7. The <code>--send-retry-window</code> option</a></li>
+<li><a href="#cro_send_timeout">1.1.8. The <code>--send-timeout</code> option</a></li>
+</ul>
+</li>
+<li><a href="#release_notes_for_race">1.2. Release notes</a>
+<ul class="sectlevel3">
+<li><a href="#release_notes_for_race_2022_02_14_r20">2022-02-14: <code>carma:r20:prod</code> for RACE 2.0.0</a></li>
+<li><a href="#release_notes_for_race_2021_12_02_r42">2021-12-02: <code>carma:r42:prod</code> for RACE 1.6.0</a></li>
+<li><a href="#release_notes_for_race_2021_10_20_r263">2021-10-20: <code>carma:r263:prod</code> for RACE 1.5.0</a></li>
+<li><a href="#release_notes_for_race_2021_09_29_r257">2021-09-29: <code>carma:r257:prod</code> for RACE 1.5.0</a></li>
+<li><a href="#release_notes_for_race_2021_09_29_r255">2021-09-29: <code>carma:r255:prod</code> for RACE 1.5.0</a></li>
+<li><a href="#release_notes_for_race_2021_09_21_r32">2021-09-21: <code>carma:r32:prod</code> for RACE 1.5.0</a></li>
+<li><a href="#release_notes_for_race_2021_08_17_r56">2021-08-17: <code>carma:r56:prod</code> for RACE 1.4.0</a></li>
+<li><a href="#release_notes_for_race_2021_08_17_r41">2021-08-17: <code>carma:r41:prod</code> for RACE 1.4.0</a></li>
+<li><a href="#release_notes_for_race_2021_07_22_r215">2021-07-22: <code>carma:r215:prod</code> for RACE 1.3.0</a></li>
+<li><a href="#release_notes_for_race_2021_07_22_r213">2021-07-22: <code>carma:r213:prod</code> for RACE 1.3.0</a></li>
+<li><a href="#release_notes_for_race_2021_07_21_r210">2021-07-21: <code>carma:r210:prod</code> for RACE 1.3.0</a></li>
+<li><a href="#release_notes_for_race_2021_07_12_r199">2021-07-12: <code>carma:r199:prod</code> for RACE 1.3.0</a></li>
+<li><a href="#release_notes_for_race_2021_07_09_r150">2021-07-09: <code>carma:r150:prod</code> for RACE 1.3.0</a></li>
+<li><a href="#release_notes_for_race_2021_07_05_r93">2021-07-05: <code>carma:r93:prod</code> for RACE 1.3.0</a></li>
+<li><a href="#release_notes_for_race_2021_06_17_r4">2021-06-17: <code>carma:r4:prod</code> for RACE 1.3.0</a></li>
+<li><a href="#release_notes_for_race_2021_05_17_r230">2021-05-17: <code>carma:r230:prod</code> for RACE 1.1.5</a></li>
+<li><a href="#release_notes_for_race_2021_05_14_r216">2021-05-14: <code>carma:r216:prod</code> for RACE 1.1.5</a></li>
+<li><a href="#release_notes_for_race_2021_05_10_r199">2021-05-10: <code>carma:r199:prod</code> for RACE 1.1.5</a></li>
+<li><a href="#release_notes_for_race_2021_05_09_r190">2021-05-09: <code>carma:r190:prod</code> for RACE 1.1.5</a></li>
+<li><a href="#release_notes_for_race_2021_05_07_r160">2021-05-07: <code>carma:r160:prod</code> for RACE 1.1.5</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#implementing-a-ta2-plugin-using-the-c-api">2. Implementing a TA2 plugin using the C API</a>
+<ul class="sectlevel2">
+<li><a href="#create-ta2-plugin">2.1. The <code>create_plugin_ta2</code> function</a></li>
+<li><a href="#destroy-ta2-plugin">2.2. The <code>destroy_plugin_ta2</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin">2.3. The <code>kestrel_ta2_plugin</code> structure</a>
+<ul class="sectlevel3">
+<li><a href="#kestrel-ta2-plugin-plugin">2.3.1. The <code>plugin</code> opaque pointer</a></li>
+<li><a href="#kestrel-ta2-plugin-name">2.3.2. The <code>name</code> string</a></li>
+<li><a href="#kestrel-ta2-plugin-activateChannel">2.3.3. The <code>activateChannel</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-close-connection">2.3.4. The <code>closeConnection</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-create-link">2.3.5. The <code>createLink</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-deactivateChannel">2.3.6. The <code>deactivateChannel</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-destroy-link">2.3.7. The <code>destroyLink</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-flushChannel">2.3.8. The <code>flushChannel</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-init">2.3.9. The <code>init</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-load-link-address">2.3.10. The <code>loadLinkAddress</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-onUserAcknowledgementReceived">2.3.11. The <code>onUserAcknowledgementReceived</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-onUserInputReceived">2.3.12. The <code>onUserInputReceived</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-open-connection">2.3.13. The <code>openConnection</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-send-package">2.3.14. The <code>sendPackage</code> function</a></li>
+<li><a href="#kestrel-ta2-plugin-shutdown">2.3.15. The <code>shutdown</code> function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="using_carma_with_race"><a class="link" href="#using_carma_with_race">1. Using CARMA with RACE</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This repository provides information for all RACE performers about how
+to use CARMA with RACE.</p>
+</div>
+<div class="sect2">
+<h3 id="custom_config_options_for_race"><a class="link" href="#custom_config_options_for_race">1.1. Custom config options</a></h3>
+<div class="paragraph">
+<p>These are the custom options that can be specified for CARMA using the
+<code>--ta1-custom-args</code> option of the <code>rib deployment config generate</code>
+command:</p>
+</div>
+<div class="sect3">
+<h4 id="cro_dynamic_only"><a class="link" href="#cro_dynamic_only">1.1.1. The <code>--dynamic-only</code> option</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code><a href="#cro_dynamic_only">--dynamic-only</a>[=&lt;regex&gt;]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code><a href="#cro_dynamic_only">--dynamic-only</a></code> option specifies that all nodes whose names
+match <code>&lt;regex&gt;</code> will only use dynamic links for non-<code>LT_RECV</code>
+links, except for the purpose of sending messages to the registration
+servers.
+In other words, the matching nodes will never call the
+<code>getLinksForPersonas</code> function for <code>LT_SEND</code> or
+<code>LT_BIDI</code> links for nodes that are not registration servers.</p>
+</div>
+<div class="paragraph">
+<p>Specifying this option without <code>&lt;regex&gt;</code>, i.e., as <code><a href="#cro_dynamic_only">--dynamic-only</a></code>,
+is equivalent to specifying <code><a href="#cro_dynamic_only">--dynamic-only</a>=".*"</code>, which matches all
+nodes.</p>
+</div>
+<div class="paragraph">
+<p>This option can be specified multiple times to specify multiple regular
+expressions to match against.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cro_allow_multicast"><a class="link" href="#cro_allow_multicast">1.1.2. The <code>--allow-multicast</code> option</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--[no-]allow-multicast</code></dt>
+<dd>
+<p>When enabled, multicast links may be used.
+When disabled, multicast links will not be used.</p>
+<div class="paragraph">
+<p>Default: disabled.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cro_leader_relay_only"><a class="link" href="#cro_leader_relay_only">1.1.3. The <code>--leader-relay-only</code> option</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--[no-]leader-relay-only</code></dt>
+<dd>
+<p>When enabled, only the leader of a management committee will send a
+message to the mailbox server of a recipient client.
+When disabled, every member of a management committee will send a
+message to the mailbox server of a recipient client.</p>
+<div class="paragraph">
+<p>Default: enabled.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cro_mix_size"><a class="link" href="#cro_mix_size">1.1.4. The <code>--mix-size</code> option</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--mix-size=&lt;n&gt;</code></dt>
+<dd>
+<p>Specifies the number of messages a management committee must receive
+before performing a mix, which causes the messages to be processed by
+the committee and sent to the recipient clients through their mailbox
+servers.</p>
+<div class="paragraph">
+<p><code>&lt;n&gt;</code> must be at least 4 and must be a square.</p>
+</div>
+<div class="paragraph">
+<p>Default: 4.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cro_inter_server_direct_only"><a class="link" href="#cro_inter_server_direct_only">1.1.5. The <code>--inter-server-direct-only</code> option</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--[no-]inter-server-direct-only</code></dt>
+<dd>
+<p>When enabled, all non-client nodes will only use direct links to send
+messages to each other.
+When disabled, all non-client nodes will use both direct and indirect
+links to send messages to each other.</p>
+<div class="paragraph">
+<p>Default: enabled.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cro_send_retry_count"><a class="link" href="#cro_send_retry_count">1.1.6. The <code>--send-retry-count</code> option</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--send-retry-count=&lt;n&gt;</code></dt>
+<dd>
+<p>Specifies the number of times a message will attempt to be resent.</p>
+<div class="paragraph">
+<p><code>&lt;n&gt;</code> must be nonnegative.</p>
+</div>
+<div class="paragraph">
+<p>Default: 0.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cro_send_retry_window"><a class="link" href="#cro_send_retry_window">1.1.7. The <code>--send-retry-window</code> option</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--send-retry-window=&lt;n&gt;</code></dt>
+<dd>
+<p>Specifies the maximum number of seconds to wait between message resend
+attempts.
+The actual number of seconds is probabilistically selected for each
+resend attempt.</p>
+<div class="paragraph">
+<p><code>&lt;n&gt;</code> must be nonnegative.</p>
+</div>
+<div class="paragraph">
+<p>Default: 180.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cro_send_timeout"><a class="link" href="#cro_send_timeout">1.1.8. The <code>--send-timeout</code> option</a></h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--send-timeout=&lt;n&gt;</code></dt>
+<dd>
+<p>Specifies the <code>sendTimeout</code> value to use when calling the
+<code>openConnection</code> function of the RACE SDK.</p>
+<div class="paragraph">
+<p><code>&lt;n&gt;</code> must be nonnegative.</p>
+</div>
+<div class="paragraph">
+<p>Default: 600.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="release_notes_for_race"><a class="link" href="#release_notes_for_race">1.2. Release notes</a></h3>
+<div class="sect3">
+<h4 id="release_notes_for_race_2022_02_14_r20"><a class="link" href="#release_notes_for_race_2022_02_14_r20">2022-02-14: <code>carma:r20:prod</code> for RACE 2.0.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r20:prod</code> for
+RACE 2.0.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-2.0.0-carma-r20" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-2.0.0-carma-r20</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-2.0.0-carma-r20" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-2.0.0-carma-r20</a></p>
+<div class="paragraph">
+<p>The documentation is also attached to this message as a PDF.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Integrated CARMA with RACE 2.0.0 and RiB 2.0.0.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_12_02_r42"><a class="link" href="#release_notes_for_race_2021_12_02_r42">2021-12-02: <code>carma:r42:prod</code> for RACE 1.6.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r42:prod</code> for
+RACE 1.6.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.6.0-carma-r42" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.6.0-carma-r42</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.6.0-carma-r42" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.6.0-carma-r42</a></p>
+<div class="paragraph">
+<p>The documentation is also attached to this message as a PDF.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Integrated CARMA with RACE 1.6.0 and RiB 1.6.0.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_10_20_r263"><a class="link" href="#release_notes_for_race_2021_10_20_r263">2021-10-20: <code>carma:r263:prod</code> for RACE 1.5.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r263:prod</code> for
+RACE 1.5.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.5.0-carma-r263" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.5.0-carma-r263</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.5.0-carma-r263" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.5.0-carma-r263</a></p>
+<div class="paragraph">
+<p>The documentation is also attached to this message as a PDF.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Adjusted all x86-64 builds so that CARMA will run on any x86-64 CPU
+without requiring any non-ubiquitous extensions such as AVX.</p>
+</li>
+<li>
+<p>No code has changed since the previous release.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_09_29_r257"><a class="link" href="#release_notes_for_race_2021_09_29_r257">2021-09-29: <code>carma:r257:prod</code> for RACE 1.5.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r257:prod</code> for
+RACE 1.5.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.5.0-carma-r257" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.5.0-carma-r257</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.5.0-carma-r257" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.5.0-carma-r257</a></p>
+<div class="paragraph">
+<p>The documentation is also attached to this message as a PDF.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Fixed a minor bug where genesis would fail if the number of servers was
+too low.
+Genesis should now work again down to 7 servers.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_09_29_r255"><a class="link" href="#release_notes_for_race_2021_09_29_r255">2021-09-29: <code>carma:r255:prod</code> for RACE 1.5.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r255:prod</code> for
+RACE 1.5.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.5.0-carma-r255" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.5.0-carma-r255</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.5.0-carma-r255" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.5.0-carma-r255</a></p>
+<div class="paragraph">
+<p>The documentation is also attached to this message as a PDF.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+CARMA should now automatically recover from broken connections that are
+reported via the <code>CONNECTION_CLOSED</code> or
+<code>CONNECTION_INIT_FAILED</code> events.
+New connections should now be opened in response to these events.</p>
+</li>
+<li>
+<p>
+CARMA now has its first iteration of registration servers.
+The current behavior is that when a client node detects that it has no
+links to its mailbox server, it will create one or more dynamic links
+and send them to its mailbox server via the registration servers.
+Note that this only applies to <code>CT_INDIRECT</code> channels.</p>
+</li>
+<li>
+<p>
+As a summary of this update, CARMA should still function normally when
+given no genesis options, primarily relying on the
+<code>getLinksForPersonas</code> function to discover links.
+In order to test dynamic links (for a <code>CT_INDIRECT</code> channel),
+genesis options such as
+<code>--ta1-custom-args='<a href="#cro_dynamic_only">--dynamic-only</a>="client"'</code> (matches all
+clients) or
+<code>--ta1-custom-args='<a href="#cro_dynamic_only">--dynamic-only</a>="client-0000[1-3]"'</code>
+(matches clients 1 to 3) can be used.</p>
+</li>
+<li>
+<p>
+Added the <code><a href="#cro_dynamic_only">--dynamic-only</a>[=&lt;regex&gt;]</code> genesis option.
+Currently, this option makes the matching nodes only use dynamic links
+for non-<code>LT_RECV</code> links, except for the purpose of sending
+messages to the registration servers.
+In other words, the matching nodes will never call the
+<code>getLinksForPersonas</code> function for <code>LT_SEND</code> or
+<code>LT_BIDI</code> links for nodes that are not registration servers.</p>
+<div class="paragraph">
+<p>This option can be specified multiple times to specify multiple regular
+expressions to match against.
+Omitting <code>=&lt;regex&gt;</code> is equivalent to specifying <code>=".*"</code>, which will
+match all nodes.</p>
+</div>
+<div class="paragraph">
+<p>Note that since RACE names its client nodes <code>race-client-XXXXX</code>,
+specifying <code><a href="#cro_dynamic_only">--dynamic-only</a>="client"</code> is an easy way to match all
+client nodes.</p>
+</div>
+<div class="paragraph">
+<p><strong>NB: Only client nodes have dynamic link support at this time.
+Matching a non-client node will cause that node to be unable to send
+messages, which may cause dropped end-to-end messages.</strong></p>
+</div>
+</li>
+<li>
+<p>
+Replaced the <code>--mb-threshold</code>, <code>--mc-threshold</code>, <code>--mc-good-size</code>, and
+<code>--num-mc-groups</code> genesis options with the <code>--mb-count</code>,
+<code>--mc-count</code>, and <code>--mc-group-size</code> options.
+Also added the <code>--reg-count</code> genesis option to specify the expected
+number of servers that will become registration servers.</p>
+<div class="paragraph">
+<p>These options should usually be omitted so that they use their default
+values.
+The default values are documented in the attached PDF.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_09_21_r32"><a class="link" href="#release_notes_for_race_2021_09_21_r32">2021-09-21: <code>carma:r32:prod</code> for RACE 1.5.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r32:prod</code> for
+RACE 1.5.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.5.0-carma-r32" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.5.0-carma-r32</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.5.0-carma-r32" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.5.0-carma-r32</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Integrated with RACE 1.5.0 and RiB 1.5.0.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_08_17_r56"><a class="link" href="#release_notes_for_race_2021_08_17_r56">2021-08-17: <code>carma:r56:prod</code> for RACE 1.4.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r56:prod</code> for
+RACE 1.4.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.4.0-carma-r56" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.4.0-carma-r56</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.4.0-carma-r56" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.4.0-carma-r56</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+OpenTracing has been re-enabled.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_08_17_r41"><a class="link" href="#release_notes_for_race_2021_08_17_r41">2021-08-17: <code>carma:r41:prod</code> for RACE 1.4.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r41:prod</code> for
+RACE 1.4.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.4.0-carma-r41" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.4.0-carma-r41</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.4.0-carma-r41" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.4.0-carma-r41</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Integrated CARMA with RACE 1.4.0 and RiB 1.4.0.</p>
+</li>
+<li>
+<p>
+Added the Android AArch64 build.
+The CARMA client and server plugins are now available on all three
+platforms: Linux x86-64, Android x86-64, and Android AArch64.</p>
+</li>
+<li>
+<p>
+OpenTracing is temporarily disabled due to interfacing difficulties
+introduced by RACE 1.4.0.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_07_22_r215"><a class="link" href="#release_notes_for_race_2021_07_22_r215">2021-07-22: <code>carma:r215:prod</code> for RACE 1.3.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r215:prod</code> for
+RACE 1.3.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r215" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r215</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.3.0-carma-r215" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.3.0-carma-r215</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Fixed a null pointer bug that was detected by an assertion inside CARMA
+during performance testing (<code>std::vector::data()</code> may return <code>nullptr</code>
+when <code>size()</code> is zero).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_07_22_r213"><a class="link" href="#release_notes_for_race_2021_07_22_r213">2021-07-22: <code>carma:r213:prod</code> for RACE 1.3.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r213:prod</code> for
+RACE 1.3.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r213" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r213</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.3.0-carma-r213" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.3.0-carma-r213</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Fixed an oversight where a multicast link that was initially discovered
+via a unicast <code>getLinksForPersonas()</code> call would never be amended to be
+marked multicast after learning more information about the link.</p>
+</li>
+<li>
+<p>
+Fixed an oversight where certain multicast send opportunities were being
+ignored when the actual receiver set is a strict superset of the desired
+receiver set.</p>
+</li>
+<li>
+<p>
+Fixed an unlikely bug where certain multicast sends could possibly send
+to an incorrect receiver set, i.e., a receiver set that is not a
+superset of the desired receiver set, which could cause a stalled mix.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_07_21_r210"><a class="link" href="#release_notes_for_race_2021_07_21_r210">2021-07-21: <code>carma:r210:prod</code> for RACE 1.3.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r210:prod</code> for
+RACE 1.3.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r210" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r210</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.3.0-carma-r210" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.3.0-carma-r210</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+The <code>--no-allow-multicast</code> option now properly disables all multicast
+behavior, including disabling any multicast calls to the
+<code>getLinksForPersonas</code> SDK function.</p>
+</li>
+<li>
+<p>
+The input and output of all calls to the <code>getLinksForPersonas</code> SDK
+function are now logged.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_07_12_r199"><a class="link" href="#release_notes_for_race_2021_07_12_r199">2021-07-12: <code>carma:r199:prod</code> for RACE 1.3.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r199:prod</code> for
+RACE 1.3.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r199" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r199</a></p>
+</li>
+<li>
+<p>
+Documentation (for everyone):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.3.0-carma-r199" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/integration-info/-/tree/race-1.3.0-carma-r199</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Changed the default <code>sendTimeout</code> value used when calling the
+<code>openConnection</code> function of the RACE SDK from 60 seconds to 600
+seconds, and added the <code>--send-timeout=&lt;n&gt;</code> option to
+<code>generate_configs.sh</code> to control this value.</p>
+</li>
+<li>
+<p>
+Added the initial Android build.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_07_09_r150"><a class="link" href="#release_notes_for_race_2021_07_09_r150">2021-07-09: <code>carma:r150:prod</code> for RACE 1.3.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r150:prod</code> for
+RACE 1.3.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r150" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r150</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Fixed an issue where <code>generate_configs.sh</code> was requesting unnecessary
+links compared to what the nodes actually use.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_07_05_r93"><a class="link" href="#release_notes_for_race_2021_07_05_r93">2021-07-05: <code>carma:r93:prod</code> for RACE 1.3.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r93:prod</code> for
+RACE 1.3.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r93" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r93</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Added multiple management committees.
+Each committee maintains a separate mix counter, which has a side effect
+of making it more difficult to determine when a <code>ClrMsg</code> will make it
+through to the final recipient.
+We recommend sending 4 copies of every <code>ClrMsg</code> (the default mix size)
+to ensure that a mix always occurs when testing.</p>
+</li>
+<li>
+<p>
+The default <code>generate_configs.sh</code> settings should now be reasonable in
+arbitrarily large deployments, with the total number of links being
+reduced by up to a factor of 100.</p>
+</li>
+<li>
+<p>
+Multicast links will be used by certain parts of the CARMA protocol if
+available.</p>
+</li>
+<li>
+<p>
+Dynamic links are not being utilized yet.</p>
+</li>
+<li>
+<p>
+The <code>carma-draw</code> utility is being updated to accomodate the new changes.
+See the work in progress image attached.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_06_17_r4"><a class="link" href="#release_notes_for_race_2021_06_17_r4">2021-06-17: <code>carma:r4:prod</code> for RACE 1.3.0</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r4:prod</code> for
+RACE 1.3.0.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r4" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.3.0-carma-r4</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Basic integration with RACE 1.3.0.</p>
+</li>
+<li>
+<p>
+Not yet calling any new functions added since RACE 1.1.5.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_05_17_r230"><a class="link" href="#release_notes_for_race_2021_05_17_r230">2021-05-17: <code>carma:r230:prod</code> for RACE 1.1.5</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r230:prod</code> for
+RACE 1.1.5.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r230" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r230</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Updated <code>generate_configs.sh</code> to output more information for
+visualization purposes.</p>
+</li>
+<li>
+<p>
+Updated the node graph "jellyfish" visualization to show channel
+information and to make the client-mailbox mapping more visible for
+large deployments.</p>
+</li>
+<li>
+<p>
+This release does not affect plugin functionality.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_05_14_r216"><a class="link" href="#release_notes_for_race_2021_05_14_r216">2021-05-14: <code>carma:r216:prod</code> for RACE 1.1.5</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r216:prod</code> for
+RACE 1.1.5.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r216" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r216</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+New <code>generate_configs.sh</code> option: <code>--mix-size=n</code>.
+Specifies the mix size.
+The default value is <code>--mix-size=4</code>.
+<code>n</code> must be at least 4 and must be a square.</p>
+</li>
+<li>
+<p>
+New <code>generate_configs.sh</code> option: <code>--mc-direct-only</code>.
+Specifies that only direct links should be used between management
+committee (MC) servers.</p>
+</li>
+<li>
+<p>
+New <code>generate_configs.sh</code> options: <code>--mb-threshold=a/b</code> and
+<code>--mc-threshold=a/b</code>.
+Specifies the fraction of servers that will be probabilistically
+selected as mailbox (MB) and management committee (MC) servers.
+The default values are <code>--mb-threshold=9/32</code> and <code>--mc-threshold=16/32</code>.
+<code>a</code> must be nonnegative, <code>b</code> must be a power of two, and the sum of both
+thresholds must be at most 1.</p>
+</li>
+<li>
+<p>
+Packages reported as <code>PACKAGE_RECEIVED</code> will now stop any further resend
+attempts.
+Packages reported as <code>PACKAGE_SENT</code> also currently stop any further
+resend attempts.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_05_10_r199"><a class="link" href="#release_notes_for_race_2021_05_10_r199">2021-05-10: <code>carma:r199:prod</code> for RACE 1.1.5</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r199:prod</code> for
+RACE 1.1.5.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r199" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r199</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Fixed a logging bug where <code>EncPkg</code> content hashes differed between
+senders and receivers.</p>
+</li>
+<li>
+<p>
+This release does not affect functionality, only logging correctness.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_05_09_r190"><a class="link" href="#release_notes_for_race_2021_05_09_r190">2021-05-09: <code>carma:r190:prod</code> for RACE 1.1.5</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r190:prod</code> for
+RACE 1.1.5.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r190" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r190</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Use any number of clients, at least 10 servers, and at least one
+indirect channel.
+The minimum number of servers is actually 6, but using fewer servers
+increases the probability that all server selection trials will fail
+during config generation.</p>
+</li>
+<li>
+<p>
+Fixed a bug that could cause the time field of a <code>ClrMsg</code> to be
+incorrect.</p>
+</li>
+<li>
+<p>
+Fixed a cross-node race condition that could cause <code>ClrMsg</code>&#8217;s to
+shadow each other, resulting in some <code>ClrMsg</code>&#8217;s being dropped and
+others being duplicated.</p>
+</li>
+<li>
+<p>
+Refined the tracing events for better log analysis, in particular
+regarding <code>EncPkg</code> routing.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="release_notes_for_race_2021_05_07_r160"><a class="link" href="#release_notes_for_race_2021_05_07_r160">2021-05-07: <code>carma:r160:prod</code> for RACE 1.1.5</a></h4>
+<div class="paragraph">
+<p>Hi all, we&#8217;ve released <code>carma:r160:prod</code> for
+RACE 1.1.5.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Source code (for those with access):
+<a href="https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r160" class="bare">https://gitlab.race.twosixlabs.com/race-ta1-stealth/carma-source/-/tree/race-1.1.5-carma-r160</a></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+Use any number of clients, at least 10 servers, and at least one
+indirect channel.
+The minimum number of servers is 6, but using fewer servers increases
+the probability that all server selection trials will fail during config
+generation.</p>
+</li>
+<li>
+<p>
+OpenTracing is now (re)integrated into our updated MPC protocol.</p>
+</li>
+<li>
+<p>
+Links are now probabilistically prioritized by various metrics.</p>
+</li>
+<li>
+<p>
+Sends for which success has not been reported via the
+<code>onPackageStatusChanged</code> API will now be probabilistically attempted to
+be resent up to 5 times over 5 minutes, sometimes trying other links.</p>
+</li>
+<li>
+<p>
+An issue where messages over a certain size were immediately failing to
+send has been fixed.
+Messages up to 140 bytes in size are now supported again.
+Please note that persona names are currently limited to 32 bytes.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="implementing-a-ta2-plugin-using-the-c-api"><a class="link" href="#implementing-a-ta2-plugin-using-the-c-api">2. Implementing a TA2 plugin using the C API</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To implement a TA2 plugin using the Kestrel C API, you must implement
+the <code><a href="#create-ta2-plugin">create_plugin_ta2</a></code> and <code><a href="#destroy-ta2-plugin">destroy_plugin_ta2</a></code> functions.</p>
+</div>
+<div class="paragraph">
+<p>Kestrel will always call
+<code>plugin-&gt;<a href="#kestrel-ta2-plugin-shutdown">shutdown</a></code> if you indicated
+success from <code><a href="#create-ta2-plugin">create_plugin_ta2</a></code>, even if the plugin is not
+initialized.</p>
+</div>
+<div class="sect2">
+<h3 id="create-ta2-plugin"><a class="link" href="#create-ta2-plugin">2.1. The <code>create_plugin_ta2</code> function</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>void <a href="#create-ta2-plugin">create_plugin_ta2</a>(
+  kestrel_ta2_sdk *    sdk,
+  <a href="#kestrel-ta2-plugin">kestrel_ta2_plugin</a> * plugin
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code><a href="#create-ta2-plugin">create_plugin_ta2</a></code> function creates an instance of the TA2
+plugin, filling in the <code><a href="#kestrel-ta2-plugin">kestrel_ta2_plugin</a></code> structure pointed to by
+<code>plugin</code> as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+<code>plugin-&gt;<a href="#kestrel-ta2-plugin-plugin">plugin</a></code> should be an opaque
+pointer to the plugin instance.</p>
+</li>
+<li>
+<p>
+<code>plugin-&gt;<a href="#kestrel-ta2-plugin-name">name</a></code> should point to a
+null-terminated string that contains the plugin name.</p>
+</li>
+<li>
+<p>
+All function pointers in <code>*plugin</code> should point to the appropriate
+plugin functions.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <code>sdk</code> parameter points to a <code>kestrel_ta2_sdk</code> structure that the
+plugin instance can use throughout its lifetime to make calls to
+Kestrel.
+The structure contains a set of function pointers but no opaque pointer
+to the SDK instance, as the <code>sdk</code> pointer itself serves as the opaque
+pointer.
+When the plugin instance calls an SDK function, it should always pass
+the <code>sdk</code> pointer as the first argument.
+For example, the plugin instance could call
+<code>sdk-&gt;get_entropy(sdk, p, n)</code> to fill <code>p</code>
+with <code>n</code> random bytes.</p>
+</div>
+<div class="paragraph">
+<p>To indicate failure, the <code><a href="#create-ta2-plugin">create_plugin_ta2</a></code> function should set
+<code>plugin-&gt;<a href="#kestrel-ta2-plugin-plugin">plugin</a></code> to a null pointer.
+In this case, Kestrel will ignore all of the function pointers in
+<code>*plugin</code>, but Kestrel will still inspect
+<code>plugin-&gt;<a href="#kestrel-ta2-plugin-name">name</a></code>.
+If <code>plugin-&gt;<a href="#kestrel-ta2-plugin-name">name</a></code> is not a null pointer,
+it should point to an error message that explains why
+<code><a href="#create-ta2-plugin">create_plugin_ta2</a></code> failed.
+The error message should be null-terminated and encoded in UTF-8.
+Although failure is being indicated, Kestrel will still call
+<code><a href="#destroy-ta2-plugin">destroy_plugin_ta2</a>(plugin)</code>, allowing any necessary cleanup to be
+performed on <code>plugin-&gt;<a href="#kestrel-ta2-plugin-name">name</a></code>.</p>
+</div>
+<div class="paragraph">
+<p>Although the name <code><a href="#create-ta2-plugin">create_plugin_ta2</a></code> is used for this function throughout this
+manual, you should give this function a unique name of your own choosing
+to help prevent name collisions with other code.
+The usual approach is to use a unique prefix on this name (and any other
+names your plugin uses).
+For example, if your plugin were named Foo, you could use <code>foo_</code> as a
+unique prefix and name this function <code>foo_create_plugin_ta2</code>.</p>
+</div>
+<div class="paragraph">
+<p>Note that the <code><a href="#create-ta2-plugin">create_plugin_ta2</a></code> function corresponds to the
+<code>createPluginTa2</code> function from the RACE C&#43;&#43; API.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="destroy-ta2-plugin"><a class="link" href="#destroy-ta2-plugin">2.2. The <code>destroy_plugin_ta2</code> function</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>void <a href="#destroy-ta2-plugin">destroy_plugin_ta2</a>(
+  <a href="#kestrel-ta2-plugin">kestrel_ta2_plugin</a> * plugin
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code><a href="#destroy-ta2-plugin">destroy_plugin_ta2</a></code> function destroys an instance of the TA2
+plugin.
+The <code>plugin</code> parameter points to a <code><a href="#kestrel-ta2-plugin">kestrel_ta2_plugin</a></code> structure that
+was originally filled in by the <code><a href="#create-ta2-plugin">create_plugin_ta2</a></code> function.</p>
+</div>
+<div class="paragraph">
+<p>Kestrel will always call the <code><a href="#destroy-ta2-plugin">destroy_plugin_ta2</a></code> function exactly
+once on a <code><a href="#kestrel-ta2-plugin">kestrel_ta2_plugin</a></code> structure, even if the
+<code><a href="#create-ta2-plugin">create_plugin_ta2</a></code> function indicated failure by setting
+<code>plugin-&gt;<a href="#kestrel-ta2-plugin-plugin">plugin</a></code> to a null pointer.
+This allows the TA2 plugin to perform any necessary cleanup if it
+allocated an error message into
+<code>plugin-&gt;<a href="#kestrel-ta2-plugin-name">name</a></code>.</p>
+</div>
+<div class="paragraph">
+<p>Although the name <code><a href="#destroy-ta2-plugin">destroy_plugin_ta2</a></code> is used for this function throughout this
+manual, you should give this function a unique name of your own choosing
+to help prevent name collisions with other code.
+The usual approach is to use a unique prefix on this name (and any other
+names your plugin uses).
+For example, if your plugin were named Foo, you could use <code>foo_</code> as a
+unique prefix and name this function <code>foo_destroy_plugin_ta2</code>.</p>
+</div>
+<div class="paragraph">
+<p>Note that the <code><a href="#destroy-ta2-plugin">destroy_plugin_ta2</a></code> function corresponds to the
+<code>destroyPluginTa2</code> function from the RACE C&#43;&#43; API.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="kestrel-ta2-plugin"><a class="link" href="#kestrel-ta2-plugin">2.3. The <code>kestrel_ta2_plugin</code> structure</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>typedef struct <a href="#kestrel-ta2-plugin">kestrel_ta2_plugin</a> <a href="#kestrel-ta2-plugin">kestrel_ta2_plugin</a>;
+
+struct <a href="#kestrel-ta2-plugin">kestrel_ta2_plugin</a> {
+
+  void * <a href="#kestrel-ta2-plugin-plugin">plugin</a>;
+
+  kestrel_char * <a href="#kestrel-ta2-plugin-name">name</a>;
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-activateChannel">activateChannel</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_char const * channelGid,
+    kestrel_char const * roleName
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-close-connection">closeConnection</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_char const * connectionId
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-create-link">createLink</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_char const * channelGid
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-deactivateChannel">deactivateChannel</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_char const * channelGid
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-destroy-link">destroyLink</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_char const * linkId
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-flushChannel">flushChannel</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_char const * channelGid,
+    <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint64_t</a>             batchId
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-init">init</a>)(
+    void * <a href="#kestrel-ta2-plugin-plugin">plugin</a>
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-load-link-address">loadLinkAddress</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_char const * channelGid,
+    kestrel_char const * linkAddress
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-onUserAcknowledgementReceived">onUserAcknowledgementReceived</a>)(
+    void *             <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle handle
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-onUserInputReceived">onUserInputReceived</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_bool         answered,
+    kestrel_char const * response
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-open-connection">openConnection</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_LinkType     linkType,
+    kestrel_char const * linkId,
+    kestrel_char const * linkHints,
+    <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">int32_t</a>              sendTimeout
+  );
+
+  kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-send-package">sendPackage</a>)(
+    void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+    kestrel_RaceHandle   handle,
+    kestrel_char const * connectionId,
+    <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint8_t</a> const *      pkg,
+    <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint64_t</a>             pkgSize,
+    <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint64_t</a>             timeoutTimestamp,
+    <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint64_t</a>             batchId
+  );
+
+  void (*<a href="#kestrel-ta2-plugin-shutdown">shutdown</a>)(
+    void * <a href="#kestrel-ta2-plugin-plugin">plugin</a>
+  );
+
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code><a href="#kestrel-ta2-plugin">kestrel_ta2_plugin</a></code> structure represents an instance of a TA2
+plugin.
+The structure contains an opaque pointer to the plugin instance, a
+string pointer, and a set of pointers to the plugin functions.
+Kestrel stores one of these structures for each TA2 plugin instance it&#8217;s
+managing and uses the function pointers to make calls to that plugin
+instance, always passing the opaque pointer as the first argument.
+For example, Kestrel will call
+<code>plugin-&gt;<a href="#kestrel-ta2-plugin-init">init</a>(plugin-&gt;plugin)</code> to
+initialize a plugin instance.</p>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-plugin"><a class="link" href="#kestrel-ta2-plugin-plugin">2.3.1. The <code>plugin</code> opaque pointer</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>void * <a href="#kestrel-ta2-plugin-plugin">plugin</a>;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-name"><a class="link" href="#kestrel-ta2-plugin-name">2.3.2. The <code>name</code> string</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_char * <a href="#kestrel-ta2-plugin-name">name</a>;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-activateChannel"><a class="link" href="#kestrel-ta2-plugin-activateChannel">2.3.3. The <code>activateChannel</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-activateChannel">activateChannel</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_char const * channelGid,
+  kestrel_char const * roleName
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-close-connection"><a class="link" href="#kestrel-ta2-plugin-close-connection">2.3.4. The <code>closeConnection</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-close-connection">closeConnection</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_char const * connectionId
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-create-link"><a class="link" href="#kestrel-ta2-plugin-create-link">2.3.5. The <code>createLink</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-create-link">createLink</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_char const * channelGid
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-deactivateChannel"><a class="link" href="#kestrel-ta2-plugin-deactivateChannel">2.3.6. The <code>deactivateChannel</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-deactivateChannel">deactivateChannel</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_char const * channelGid
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-destroy-link"><a class="link" href="#kestrel-ta2-plugin-destroy-link">2.3.7. The <code>destroyLink</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-destroy-link">destroyLink</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_char const * linkId
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-flushChannel"><a class="link" href="#kestrel-ta2-plugin-flushChannel">2.3.8. The <code>flushChannel</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-flushChannel">flushChannel</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_char const * channelGid,
+  <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint64_t</a>             batchId
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-init"><a class="link" href="#kestrel-ta2-plugin-init">2.3.9. The <code>init</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-init">init</a>)(
+  void * <a href="#kestrel-ta2-plugin-plugin">plugin</a>
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-load-link-address"><a class="link" href="#kestrel-ta2-plugin-load-link-address">2.3.10. The <code>loadLinkAddress</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-load-link-address">loadLinkAddress</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_char const * channelGid,
+  kestrel_char const * linkAddress
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-onUserAcknowledgementReceived"><a class="link" href="#kestrel-ta2-plugin-onUserAcknowledgementReceived">2.3.11. The <code>onUserAcknowledgementReceived</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-onUserAcknowledgementReceived">onUserAcknowledgementReceived</a>)(
+  void *             <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle handle
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-onUserInputReceived"><a class="link" href="#kestrel-ta2-plugin-onUserInputReceived">2.3.12. The <code>onUserInputReceived</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-onUserInputReceived">onUserInputReceived</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_bool         answered,
+  kestrel_char const * response
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-open-connection"><a class="link" href="#kestrel-ta2-plugin-open-connection">2.3.13. The <code>openConnection</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-open-connection">openConnection</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_LinkType     linkType,
+  kestrel_char const * linkId,
+  kestrel_char const * linkHints,
+  <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">int32_t</a>              sendTimeout
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-send-package"><a class="link" href="#kestrel-ta2-plugin-send-package">2.3.14. The <code>sendPackage</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>kestrel_PluginResponse (*<a href="#kestrel-ta2-plugin-send-package">sendPackage</a>)(
+  void *               <a href="#kestrel-ta2-plugin-plugin">plugin</a>,
+  kestrel_RaceHandle   handle,
+  kestrel_char const * connectionId,
+  <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint8_t</a> const *      pkg,
+  <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint64_t</a>             pkgSize,
+  <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint64_t</a>             timeoutTimestamp,
+  <a href="https://en.cppreference.com/w/c/types/integer" target="_blank" rel="noopener">uint64_t</a>             batchId
+);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="kestrel-ta2-plugin-shutdown"><a class="link" href="#kestrel-ta2-plugin-shutdown">2.3.15. The <code>shutdown</code> function</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>void (*<a href="#kestrel-ta2-plugin-shutdown">shutdown</a>)(
+  void * <a href="#kestrel-ta2-plugin-plugin">plugin</a>
+);</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<!--
+//
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+-->
+<footer>
+&copy; 2024 Stealth Software Technologies, Inc.
+</footer>
+</body>
+</html>

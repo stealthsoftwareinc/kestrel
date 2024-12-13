@@ -1,0 +1,423 @@
+//
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+= **Resilient Anonymous Communication for Everyone (RACE) - CARMA (TA1) Guide**
+:toc:
+
+//
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+//
+// The following files are similar:
+//
+//       doc/readme/common.adoc
+//       doc/pages/_includes/common.liquid
+//
+// If you edit one of these files, you may need to edit the other(s) as
+// well.
+//
+
+//
+// The readme_diagrams attribute can be either unset, set to the empty
+// string, or set to any nonempty string. Unset means diagrams are not
+// being generated, the empty string means diagrams are being generated
+// for the distribution archive, and any nonempty string means diagrams
+// are being generated for the source repository.
+//
+
+ifdef::readme_diagrams[]
+ifeval::["{readme_diagrams}" != ""]
+endif::[]
+endif::[]
+
+ifndef::readme_diagrams[]
+endif::[]
+
+//----------------------------------------------------------------------
+//
+// This section includes config_source.adoc or config.adoc depending on
+// whether we're in the source repository.
+//
+
+
+//
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+//
+// This file should roughly mirror the
+// doc/pages/_includes/config.liquid.in file. If you edit this file, you
+// might need to edit that file as well.
+//
+
+:PACKAGE_NAME: Kestrel
+:PACKAGE_TARNAME: kestrel
+:PACKAGE_VERSION: 3.0.1
+
+//
+
+//----------------------------------------------------------------------
+
+// TODO: This will be implicitly included by doc/readme/common.adoc at
+//       some point.
+//
+// Copyright (C) 2019-2024 Stealth Software Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an "AS
+// IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language
+// governing permissions and limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//----------------------------------------------------------------------
+//
+// This file should be included in the document header [1] after any
+// title, author, and revision lines. This also means that this file
+// must not contain any blank lines.
+//
+// [1] https://docs.asciidoctor.org/asciidoc/latest/document/header/
+//
+//----------------------------------------------------------------------
+:attribute-missing: warn
+:docinfo: shared
+:experimental:
+:last-update-label!:
+:linkcss:
+:mathematical-format: svg
+ifdef::backend-html5[]
+:nofooter:
+endif::[]
+:pdf-fontsdir: {docdir}/katex/fonts
+:pdf-theme: sst.yml
+:pdf-themesdir: {docdir}
+:sectlinks:
+:sectnumlevels: 5
+:sectnums:
+:stem: latexmath
+:stylesheet: sst.css
+:title-page:
+:toc: left
+:toclevels: 5
+:version-label: Version:
+:xrefstyle: short
+//----------------------------------------------------------------------
+:sst_subs_normal: specialchars,attributes,quotes,replacements,macros,post_replacements
+:sst_subs_source: specialchars,attributes,quotes,macros
+//----------------------------------------------------------------------
+:sst_hindent: {nbsp}{nbsp}{nbsp}{nbsp}{nbsp}{nbsp}{nbsp}{nbsp}
+//----------------------------------------------------------------------
+// Special characters
+//----------------------------------------------------------------------
+ifdef::backend-html5[]
+:sst_empty_tag: pass:[<i></i>]
+endif::[]
+ifndef::backend-html5[]
+:sst_empty_tag:
+endif::[]
+:sst_asterisk: pass:[&#42;]
+:sst_backslash: pass:[&#92;]
+:sst_backtick: pass:[&#96;]
+:sst_ellipsis: pass:[&#46;&#46;&#46;]
+:sst_gt: pass:[&#62;]
+:sst_lbrace: pass:[&#123;]
+:sst_lt: pass:[&#60;]
+:sst_rbrace: pass:[&#125;]
+:sst_underscore: pass:[&#95;]
+//----------------------------------------------------------------------
+
+
+== **Terminology**
+*add implementation-specific terms and acronyms*
+
+
+== **Introduction**
+
+Within the RACE program, Technical Area 1 plugins provide the logic
+that powers the overall distributed network. The system is a
+collection of client and server nodes, and the nodes need to be told
+how to operate. Our TA1 plugin, CARMA, instructs the nodes in the
+RACE system how to behave. It informs which nodes should be connected
+under which TA2 channels, the roles they serve, when and how to pass
+messages, and how to perform the proper duties to meet the design
+goals of robustness and anonymity.
+
+The overall approach is to set up mixing committees that perform
+secure multiparty computation-based mixing to achieve unlinkability,
+and then have mailbox servers acts as entry points for clients which
+then forward messages to the mixers.
+
+*High-level Paragraph: State what this plugin accomplishes*
+
+
+=== **Design Goals**
+
+From a cryptographic standpoint, we outline several important design
+goals that our CARMA anonymous messaging system should have: Authenticity, confidentiality, end-to-end encryption, robustness against faults and malicious behavior, unlinkability.
+
+
+
+
+=== **Security Considerations**
+
+This is a research prototype, focused primarily on novel ways of
+achieving mixing for anonymity while maintaining robustness.
+
+When deploying in an actual environment, one must consider who is the adversary, what are you trying to protect, what are your assumptions, and many other considerations.
+
+Stating areas where this system can improve will help guide the reader across potential pitfalls.  It is well known that end-to-end secure messaging is notoriously difficult to get right, especially if one wants to strike a balance between convenience and security.
+
+An independent security audit would be one of the steps towards preparing our results for real-world use.
+
+
+
+== **Scope**
+This developer guide covers the *[Project Name]* development model, building artifacts, running, and troubleshooting. It is structured this way to first provide context, associate attributes/features with source files, then guide a developer through the build process.
+
+*additional detail as appropriate*
+
+
+=== **Audience**
+*State assumptions about reader (e.g. familiarity with technologies utilized, etc)*
+
+=== **Environment**
+*supported hosts and resource recommendations*
+
+*(e.g. runs on Linux and Android hosts)*
+
+*(e.g. X RAM, Y SSD recommended)*
+
+=== **License**
+*State all license related information*
+
+=== **Additional Reading**
+*Reference TBD User Guide, RACE dev guide, and appropriate TA dev guide*
+
+*More specifically [Other File](relative/file/path.file)*
+
+
+== **Implementation Overview**
+*Top-level paragraph of what's in this project. Additional detail on what this accomplishes (as appropriate)*
+
+*Provide additional detail for terms defined in Terminology (as appropriate)*
+
+*How is this expected to work in a RACE deployment?*
+
+*Mermaid flow diagram(s) to illustrate internal state, and other interesting inter-workings*
+
+There are several Mermaid diagrams in this document. See https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams for more info about viewing Mermaid diagrams in github. Mermaid diagrams can also be viewed in Visual Studio with Marketplace extensions: Markdown, and Markdown Preview Mermaid Support.
+```mermaid
+sequenceDiagram
+User-->>RACE Messaging App: start command executes
+RACE Messaging App->>RACE Core: initializes
+```
+
+
+
+== **Implementation Organization**
+*description of each directory or file with detail sufficient to direct readers to specific attribute/functionality they may wish to inspect or change*
+
+*map attributes to implementation in the following*
+=== **Feature/Attribute I**
+- *file/directory Q supports attribute I by ...*
+- *file/directory R supports attribute I by ...*
+=== **Feature/Attribute J**
+- *file/directory S supports attribute J by ...*
+- *file/directory T supports attribute J by ...*
+
+
+
+== **How To Build**
+*General build environment detail as appropriate (state what each artifact does, build considerations Linux vs Android)*
+
+
+
+=== The Kestrel RACE Artifactory archive
+
+The Kestrel RACE Artifactory archive contains a RACE-specific build of
+all Kestrel plugins (one of which is CARMA), compiled for multiple
+platforms and architectures.
+Here, "RACE-specific" means that each plugin is compiled into a single
+shared object (`.so`) file that implements the small C interface the
+RACE system uses to create and destroy instances of the plugin.
+After it has an instance of the plugin, the RACE system uses the RACE
+{cpp} interface to make calls to the plugin, and the plugin uses the
+interface to make calls to the RACE SDK.
+
+The Kestrel RACE Artifactory archive can be built from any Linux-based
+environment with Docker installed.
+The following code shows how to build it from a fresh Ubuntu system:
+
+// TODO: The RACE Docker registry will be different after full open
+//       sourcing. It will probably be public and won't require running
+//       "docker login", and the image URLs may be different.
+
+:race_docker_registry: gitlab.race.twosixlabs.com:4567
+
+[source,sh,subs="{sst_subs_source}"]
+----
+# Install some basic packages.
+sudo apt-get -q -y install \
+  pass:[g++] gawk gcc git make openssl wget xz-utils
+
+# Install Docker and reboot.
+curl -L -S -f -s \https://get.docker.com | sudo sh
+sudo groupadd docker
+sudo usermod -G -a docker $USER
+sudo reboot
+
+# Clone the Kestrel repository.
+git clone \git@github.com:stealthsoftwareinc/kestrel.git
+cd kestrel
+git checkout v{PACKAGE_VERSION}
+
+# Pull and alias the RACE Docker images.
+docker login {race_docker_registry}
+v=$(cat build-aux/RACE_VERSION)
+r={race_docker_registry}/race-common
+img1a=$r/race-in-the-box/race-in-the-box:$v
+img1b=$r/racesdk/race-sdk:$v
+r=registry.stealthsoftwareinc.com/stealth/carma
+img2a=$r/race-in-the-box:$v
+img2b=$r/race-sdk-carma:$v
+docker pull $img1a
+docker pull $img1b
+docker tag $img1a $img2a
+docker tag $img1b $img2b
+
+# Build the archive.
+#
+# This may take a while depending on how large you can set
+# DOCKERFILE_THREADS.
+#
+# You can increase DOCKERFILE_THREADS depending on how many CPUs and how
+# much memory you have. It is not recommended to set DOCKERFILE_THREADS
+# any larger than min(N, K/2), where N is how many CPUs you have and K
+# is how much memory you have in GB. It is also not recommended to use
+# the -j option of make if you set DOCKERFILE_THREADS > 1.
+
+./configure
+make src/artifactory DOCKERFILE_THREADS=1
+----
+
+This will produce the file
+`src/artifactory/kestrel-{PACKAGE_VERSION}-artifactory.tar.xz`.
+
+==== **Parameters**
+*build flags (what flags enable hardened deployment? disable logging?)*
+
+==== **Dependencies**
+*state required packages, etc*
+
+==== **Manifest**
+*requirements - classify plugin for Core*
+
+*channel properties - characterize operating profile (direct/indirect, loader/creator, expected latencies/bandwidth, roles, hints, etc)*
+
+==== **Assumptions**
+*as appropriate*
+
+==== **Known Limitations**
+*as appropriate*
+
+==== **Tests**
+*Brief: what requirements do test(s) cover*
+
+*How to build and run tests*
+
+
+
+=== **Artifact Y**
+*same as above*
+
+
+
+
+== **How To Run**
+*Stand-alone version and utilities (if applicable)*
+
+*(preferably multiple) examples with common parameters, with statement about what it does or how it differs*
+
+*See [appropriate TA dev] guide in [Additional Reading](additional-reading)*
+
+
+
+=== **Artifact X**
+==== **Parameters**
+*run flags (required or optional, and what they do, how do they change if running small vs large deployment)*
+
+=== **Artifact Y**
+==== **Parameters**
+*run flags (required or optional, and what they do, how do they change if running small vs large deployment)*
+
+
+
+== **Troubleshooting**
+*State general troubleshooting philosophy*
+
+*How to verify functionality is working and enabled*
+
+=== **Build Tips**
+*List of tips as appropriate*
+
+=== **Common Issues**
+*Anything to avoid in general (e.g. time-related issues: necessary delays)*
+
+=== **Debugging Tips**
+*in addition to those stated in RACE dev guide*
+
+
+
+== **How Do I?**
+*How do I change attribute/capability A-Z (e.g. replace algorithm, change flag effect, etc.)*

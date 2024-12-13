@@ -1,0 +1,8 @@
+{
+
+  "handler": "sst_ajh_download",
+
+  "type": "copy",
+  "file": "build-aux/downloads/sst-0.40.1.tar.gz",
+
+"":0}
